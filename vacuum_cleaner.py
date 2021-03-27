@@ -17,7 +17,7 @@ class LowBatteryCharge(Exception):
 
 class VacuumCleaner:
 
-    config = {"waste_difference": 0.0, "water_difference": 0.0, "battery_difference": 0.0}
+    config = {"waste_difference": 17, "water_difference": 0.3, "battery_difference": 2}
     actions_with_low_battery = 5
 
     def __init__(self, battery_charge, amount_of_water, garbage_bin_occupancy):
@@ -28,16 +28,16 @@ class VacuumCleaner:
         except VacuumCleanerError as error:
             print("Incorrect input params")
             raise error
-        except LowBatteryCharge: pass
+        except LowBatteryCharge:
+            pass
         try:
             with open("vacuum_cleaner.conf") as config:
                 for line in config:
                     key = line.split()[0]
                     value = float(line.split()[-1])
                     self.config[key] = value
-        except FileNotFoundError as error:
-            print("Config is not found")
-            raise error
+        except FileNotFoundError:
+            print("Config is not found, using default values")
 
     @property
     def battery_charge(self):
@@ -111,6 +111,7 @@ class VacuumCleaner:
         self.actions_with_low_battery = 5
         while self.actions_with_low_battery > 0 and (self._cleaning_enable or self._washing_enable):
             print("Move ---")
+            print(f"battery {self.battery_charge} water {self.amount_of_water} trash {self.garbage_bin_occupancy}")
             self.wash()
             self.vacuum_cleaner()
             sleep(1)
